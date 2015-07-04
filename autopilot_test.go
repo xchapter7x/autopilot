@@ -21,7 +21,7 @@ var _ = Describe("Flag Parsing", func() {
 	It("parses a complete set of args", func() {
 		appName, args := ParseArgs(
 			[]string{
-				"zdd-push",
+				"push-zdd",
 				"appname",
 				"-f", "manifest-path",
 				"-p", "app-path",
