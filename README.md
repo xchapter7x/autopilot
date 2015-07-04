@@ -2,26 +2,24 @@
 
 *cf plugin for hands-off, zero downtime application deploys*
 
-![Autopilot](http://i.imgur.com/xj2vbwk.jpg)
-
 ## installation
 
 **On *nix**
 ```
-$ go get github.com/concourse/autopilot
+$ go get github.com/xchapter7x/autopilot
 $ cf install-plugin $GOPATH/bin/autopilot
 ```
 
 **On Windows**
 ```
-$ go get github.com/concourse/autopilot
+$ go get github.com/xchapter7x/autopilot
 $ cf install-plugin $env:GOPATH/bin/autopilot.exe
 ```
 
 ## usage
 
 ```
-$ cf zero-downtime-push application-to-replace \
+$ cf zdd-push application-to-replace \
     -f path/to/new_manifest.yml \
     -p path/to/new/path
 ```
@@ -34,7 +32,7 @@ is created will not resemble the application that it is replacing.
 ## method
 
 *Autopilot* takes a different approach to other zero-downtime plugins. It
-doesn't perform any [complex route re-mappings][indiana-jones] instead it leans
+doesn't perform any [complex route re-mappings] instead it leans
 on the manifest feature of the Cloud Foundry CLI. The method also has the
 advantage of treating a manifest as the source of truth and will converge the
 state of the system towards that. This makes the plugin ideal for continuous
@@ -51,4 +49,3 @@ delivery environments.
 3. The old application is deleted along with its route mappings. All traffic
    now goes to the new application.
 
-[indiana-jones]: https://www.youtube.com/watch?v=0gU35Tgtlmg
