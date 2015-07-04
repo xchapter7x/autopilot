@@ -21,12 +21,12 @@ $ cf install-plugin $env:GOPATH/bin/autopilot.exe
 ```
 USAGE:
    Push a single app (with or without a manifest):
-   cf zdd-push APP [-b BUILDPACK_NAME] [-c COMMAND] [-d DOMAIN] [-f MANIFEST_PATH]
+   cf push-zdd APP [-b BUILDPACK_NAME] [-c COMMAND] [-d DOMAIN] [-f MANIFEST_PATH]
    [-i NUM_INSTANCES] [-k DISK] [-m MEMORY] [-n HOST] [-p PATH] [-s STACK] [-t TIMEOUT]
    [--no-hostname] [--no-manifest] [--no-route] [--no-start]
 
    Push multiple apps with a manifest:
-   cf zdd-push [-f MANIFEST_PATH]
+   cf push-zdd [-f MANIFEST_PATH]
 
 
 OPTIONS:
