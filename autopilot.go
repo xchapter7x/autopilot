@@ -43,6 +43,7 @@ func (plugin AutopilotPlugin) Run(cliConnection plugin.CliConnection, args []str
 					return appRepo.PushApplication(argList)
 				},
 				ReversePrevious: func() error {
+					appRepo.DeleteApplication(appName)
 					return appRepo.RenameApplication(venerableAppName, appName)
 				},
 			},

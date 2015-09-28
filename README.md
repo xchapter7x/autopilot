@@ -13,7 +13,7 @@ $ cf install-plugin $GOPATH/bin/autopilot
 **On Windows**
 ```
 $ go get github.com/xchapter7x/autopilot
-$ cf install-plugin $env:GOPATH/bin/autopilot.exe
+$ cf install-plugin %GOPATH%\bin\autopilot.exe
 ```
 
 ## usage
