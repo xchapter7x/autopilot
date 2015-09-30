@@ -1,0 +1,17 @@
+mode: set
+github.com/xchapter7x/autopilot/autopilot.go:12.25,13.16 1 0
+github.com/xchapter7x/autopilot/autopilot.go:13.16,16.3 2 0
+github.com/xchapter7x/autopilot/autopilot.go:19.13,21.2 1 0
+github.com/xchapter7x/autopilot/autopilot.go:27.86,37.27 5 0
+github.com/xchapter7x/autopilot/autopilot.go:62.2,70.14 7 0
+github.com/xchapter7x/autopilot/autopilot.go:37.27,39.6 1 0
+github.com/xchapter7x/autopilot/autopilot.go:44.27,46.6 1 0
+github.com/xchapter7x/autopilot/autopilot.go:47.35,49.6 1 0
+github.com/xchapter7x/autopilot/autopilot.go:54.27,56.6 1 0
+github.com/xchapter7x/autopilot/autopilot.go:74.60,84.2 1 0
+github.com/xchapter7x/autopilot/autopilot.go:87.50,91.2 3 1
+github.com/xchapter7x/autopilot/autopilot.go:102.69,106.2 1 1
+github.com/xchapter7x/autopilot/autopilot.go:109.79,112.2 2 1
+github.com/xchapter7x/autopilot/autopilot.go:115.67,118.2 2 1
+github.com/xchapter7x/autopilot/autopilot.go:121.70,124.2 2 1
+github.com/xchapter7x/autopilot/autopilot.go:127.55,130.2 2 1

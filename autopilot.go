@@ -6,7 +6,7 @@ import (
 	"os"
 
 	"github.com/cloudfoundry/cli/plugin"
-	"github.com/concourse/autopilot/rewind"
+	"github.com/xchapter7x/autopilot/rewind"
 )
 
 func fatalIf(err error) {
@@ -20,8 +20,10 @@ func main() {
 	plugin.Start(&AutopilotPlugin{})
 }
 
+//AutopilotPlugin - the object implementing the plugin for zdd
 type AutopilotPlugin struct{}
 
+//Run - required command of a plugin (entry point)
 func (plugin AutopilotPlugin) Run(cliConnection plugin.CliConnection, args []string) {
 	var err error
 	appRepo := NewApplicationRepo(cliConnection)
@@ -69,6 +71,7 @@ func (plugin AutopilotPlugin) Run(cliConnection plugin.CliConnection, args []str
 	fatalIf(err)
 }
 
+//GetMetadata - required command of plugin (returns meta data about plugin)
 func (AutopilotPlugin) GetMetadata() plugin.PluginMetadata {
 	return plugin.PluginMetadata{
 		Name: "push-zero-downtime-deployment",
@@ -81,39 +84,47 @@ func (AutopilotPlugin) GetMetadata() plugin.PluginMetadata {
 	}
 }
 
+//ParseArgs - parse given cli arguments
 func ParseArgs(args []string) (string, []string) {
 	args[0] = "push"
 	appName := args[1]
 	return appName, args
 }
 
+//ErrNoManifest - error to return when there is no manifest if required
 var ErrNoManifest = errors.New("a manifest is required to push this application")
 
+//ApplicationRepo - cli connection wrapper
 type ApplicationRepo struct {
 	conn plugin.CliConnection
 }
 
+//NewApplicationRepo - constructor function to create cli connection wrapper
 func NewApplicationRepo(conn plugin.CliConnection) *ApplicationRepo {
 	return &ApplicationRepo{
 		conn: conn,
 	}
 }
 
+//RenameApplication - rename the application given
 func (repo *ApplicationRepo) RenameApplication(oldName, newName string) error {
 	_, err := repo.conn.CliCommand("rename", oldName, newName)
 	return err
 }
 
+//PushApplication - push the application to cf
 func (repo *ApplicationRepo) PushApplication(args []string) error {
 	_, err := repo.conn.CliCommand(args...)
 	return err
 }
 
+//DeleteApplication - delete the application from cf
 func (repo *ApplicationRepo) DeleteApplication(appName string) error {
 	_, err := repo.conn.CliCommand("delete", appName, "-f")
 	return err
 }
 
+//ListApplications - list applications on cf
 func (repo *ApplicationRepo) ListApplications() error {
 	_, err := repo.conn.CliCommand("apps")
 	return err

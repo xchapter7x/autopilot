@@ -1,5 +1,5 @@
 {
-	"ImportPath": "github.com/concourse/autopilot",
+	"ImportPath": "github.com/xchapter7x/autopilot",
 	"GoVersion": "go1.4.2",
 	"Packages": [
 		"./..."
@@ -7,18 +7,18 @@
 	"Deps": [
 		{
 			"ImportPath": "github.com/cloudfoundry/cli/plugin",
-			"Comment": "v6.11.3-7-gd364b91",
-			"Rev": "d364b91144c3332057bc8c78199bfd09fde145d3"
+			"Comment": "v6.12.4-1-g9e9c263",
+			"Rev": "9e9c26381a4248e5d52ed6f43fb75afd7d28edaa"
 		},
 		{
 			"ImportPath": "github.com/onsi/ginkgo",
-			"Comment": "v1.2.0-beta-9-gfbb6632",
-			"Rev": "fbb663242655b700c623e9629d7781db98957501"
+			"Comment": "v1.2.0-11-gd94e2f4",
+			"Rev": "d94e2f4000332f62b356ecb2840c98f4218f5358"
 		},
 		{
 			"ImportPath": "github.com/onsi/gomega",
-			"Comment": "v1.0-48-g766f404",
-			"Rev": "766f4042b942146e90594d145c5071fa92c0aa9a"
+			"Comment": "v1.0-52-ga2ab864",
+			"Rev": "a2ab8644e0b6a33df2cbe44673bd0f6ebba9abc3"
 		}
 	]
 }
