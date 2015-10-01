@@ -2,6 +2,8 @@
 
 *cf plugin for hands-off, zero downtime application deploys*
 
+[![wercker status](https://app.wercker.com/status/20bb961edddefdf7ec393c02b5e1b9e6/s/master "wercker status")](https://app.wercker.com/project/bykey/20bb961edddefdf7ec393c02b5e1b9e6)
+
 ## installation
 
 **On *nix**
