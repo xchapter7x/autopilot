@@ -4,6 +4,8 @@
 
 [![wercker status](https://app.wercker.com/status/20bb961edddefdf7ec393c02b5e1b9e6/s/master "wercker status")](https://app.wercker.com/project/bykey/20bb961edddefdf7ec393c02b5e1b9e6)
 
+[![Coverage Status](https://coveralls.io/repos/xchapter7x/autopilot/badge.svg?branch=HEAD&service=github)](https://coveralls.io/github/xchapter7x/autopilot?branch=HEAD)
+
 ## installation
 
 **On *nix**
