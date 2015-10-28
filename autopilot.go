@@ -72,9 +72,7 @@ func (plugin AutopilotPlugin) Run(cliConnection plugin.CliConnection, args []str
 	err = actions.Execute()
 	fatalIf(err)
 
-	fmt.Println()
-	fmt.Println("A new version of your application has successfully been pushed!")
-	fmt.Println()
+	fmt.Printf("\nA new version of your application has successfully been pushed!\n\n")
 
 	err = appRepo.ListApplications()
 	fatalIf(err)
