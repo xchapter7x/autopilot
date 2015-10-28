@@ -25,6 +25,15 @@ type AutopilotPlugin struct{}
 
 //Run - required command of a plugin (entry point)
 func (plugin AutopilotPlugin) Run(cliConnection plugin.CliConnection, args []string) {
+	if args[0] == "push-zdd" && len(args) == 1 {
+		fmt.Println(`USAGE:
+   Push a single app (with or without a manifest):
+   cf push APP_NAME [-b BUILDPACK_NAME] [-c COMMAND] [-d DOMAIN] [-f MANIFEST_PATH]
+   [-i NUM_INSTANCES] [-k DISK] [-m MEMORY] [-n HOST] [-p PATH] [-s STACK] [-t TIMEOUT]
+   [--no-hostname] [--no-manifest] [--no-route] [--no-start]`)
+		return
+	}
+
 	var err error
 	appRepo := NewApplicationRepo(cliConnection)
 	appName, argList := ParseArgs(args)

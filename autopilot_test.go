@@ -9,6 +9,8 @@ import (
 
 	. "github.com/xchapter7x/autopilot"
 
+	. "github.com/cloudfoundry/cli/testhelpers/io"
+
 	"github.com/cloudfoundry/cli/plugin/fakes"
 )
 
@@ -139,5 +141,26 @@ var _ = Describe("ApplicationRepo", func() {
 			err := repo.ListApplications()
 			Ω(err).Should(MatchError("bad apps"))
 		})
+	})
+})
+
+var _ = Describe("Command Syntax", func() {
+
+	var (
+		cliConn         *fakes.FakeCliConnection
+		autopilotPlugin *AutopilotPlugin
+	)
+
+	BeforeEach(func() {
+		cliConn = &fakes.FakeCliConnection{}
+		autopilotPlugin = &AutopilotPlugin{}
+	})
+
+	It("displays usage when push-zdd called with no arguments", func() {
+		output := CaptureOutput(func() {
+			autopilotPlugin.Run(cliConn, []string{"push-zdd"})
+		})
+
+		Expect(output).To(ContainElement(ContainSubstring("USAGE:")))
 	})
 })
