@@ -2,7 +2,6 @@ package main_test
 
 import (
 	"errors"
-	"testing"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -11,11 +10,6 @@ import (
 
 	"github.com/cloudfoundry/cli/plugin/fakes"
 )
-
-func TestAutopilot(t *testing.T) {
-	RegisterFailHandler(Fail)
-	RunSpecs(t, "Autopilot Suite")
-}
 
 var _ = Describe("Flag Parsing", func() {
 	It("parses a complete set of args", func() {
