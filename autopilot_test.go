@@ -9,8 +9,6 @@ import (
 
 	. "github.com/xchapter7x/autopilot"
 
-	. "github.com/cloudfoundry/cli/testhelpers/io"
-
 	"github.com/cloudfoundry/cli/plugin/fakes"
 )
 
@@ -156,11 +154,11 @@ var _ = Describe("Command Syntax", func() {
 		autopilotPlugin = &AutopilotPlugin{}
 	})
 
-	It("displays usage when push-zdd called with no arguments", func() {
-		output := CaptureOutput(func() {
-			autopilotPlugin.Run(cliConn, []string{"push-zdd"})
-		})
+	It("displays push usage when push-zdd called with no arguments", func() {
+		autopilotPlugin.Run(cliConn, []string{"push-zdd"})
 
-		Expect(output).To(ContainElement(ContainSubstring("USAGE:")))
+		Ω(cliConn.CliCommandCallCount()).Should(Equal(1))
+		args := cliConn.CliCommandArgsForCall(0)
+		Ω(args).Should(Equal([]string{"push", "-h"}))
 	})
 })
