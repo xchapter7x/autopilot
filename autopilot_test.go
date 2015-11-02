@@ -2,7 +2,6 @@ package main_test
 
 import (
 	"errors"
-	"testing"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -11,11 +10,6 @@ import (
 
 	"github.com/cloudfoundry/cli/plugin/fakes"
 )
-
-func TestAutopilot(t *testing.T) {
-	RegisterFailHandler(Fail)
-	RunSpecs(t, "Autopilot Suite")
-}
 
 var _ = Describe("Flag Parsing", func() {
 	It("parses a complete set of args", func() {
@@ -139,5 +133,26 @@ var _ = Describe("ApplicationRepo", func() {
 			err := repo.ListApplications()
 			Ω(err).Should(MatchError("bad apps"))
 		})
+	})
+})
+
+var _ = Describe("Command Syntax", func() {
+
+	var (
+		cliConn         *fakes.FakeCliConnection
+		autopilotPlugin *AutopilotPlugin
+	)
+
+	BeforeEach(func() {
+		cliConn = &fakes.FakeCliConnection{}
+		autopilotPlugin = &AutopilotPlugin{}
+	})
+
+	It("displays push usage when push-zdd called with no arguments", func() {
+		autopilotPlugin.Run(cliConn, []string{"push-zdd"})
+
+		Ω(cliConn.CliCommandCallCount()).Should(Equal(1))
+		args := cliConn.CliCommandArgsForCall(0)
+		Ω(args).Should(Equal([]string{"push", "-h"}))
 	})
 })

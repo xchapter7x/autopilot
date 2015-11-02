@@ -25,8 +25,16 @@ type AutopilotPlugin struct{}
 
 //Run - required command of a plugin (entry point)
 func (plugin AutopilotPlugin) Run(cliConnection plugin.CliConnection, args []string) {
+
 	var err error
 	appRepo := NewApplicationRepo(cliConnection)
+
+	if args[0] == "push-zdd" && len(args) == 1 {
+		err = appRepo.PushApplication([]string{"push", "-h"})
+		fatalIf(err)
+		return
+	}
+
 	appName, argList := ParseArgs(args)
 	venerableAppName := appName + "-venerable"
 
@@ -63,9 +71,7 @@ func (plugin AutopilotPlugin) Run(cliConnection plugin.CliConnection, args []str
 	err = actions.Execute()
 	fatalIf(err)
 
-	fmt.Println()
-	fmt.Println("A new version of your application has successfully been pushed!")
-	fmt.Println()
+	fmt.Printf("\nA new version of your application has successfully been pushed!\n\n")
 
 	err = appRepo.ListApplications()
 	fatalIf(err)
