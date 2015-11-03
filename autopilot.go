@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/cloudfoundry/cli/plugin"
 	"github.com/xchapter7x/autopilot/rewind"
@@ -14,6 +15,15 @@ func fatalIf(err error) {
 		fmt.Fprintln(os.Stdout, "error:", err)
 		os.Exit(1)
 	}
+}
+
+func appNotFound(output []string, appName string) bool {
+	for _, app := range output {
+		if strings.Contains(app, appName) {
+			return false
+		}
+	}
+	return true
 }
 
 func main() {
@@ -37,6 +47,18 @@ func (plugin AutopilotPlugin) Run(cliConnection plugin.CliConnection, args []str
 
 	appName, argList := ParseArgs(args)
 	venerableAppName := appName + "-venerable"
+
+	output, err := appRepo.ListApplicationsWithOutput()
+	fatalIf(err)
+
+	if appNotFound(output, appName) {
+		fmt.Printf("\n%s not found! Using cf push.\n\n", appName)
+		err := appRepo.PushApplication(argList)
+		fatalIf(err)
+
+		fmt.Printf("\nYour application has successfully been pushed!\n\n")
+		return
+	}
 
 	actions := rewind.Actions{
 		Actions: []rewind.Action{
@@ -134,4 +156,10 @@ func (repo *ApplicationRepo) DeleteApplication(appName string) error {
 func (repo *ApplicationRepo) ListApplications() error {
 	_, err := repo.conn.CliCommand("apps")
 	return err
+}
+
+//ListApplicationsWithOutput - list applications on cf with output
+func (repo *ApplicationRepo) ListApplicationsWithOutput() ([]string, error) {
+	output, err := repo.conn.CliCommand("apps")
+	return output, err
 }

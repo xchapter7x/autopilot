@@ -9,6 +9,7 @@ import (
 	. "github.com/xchapter7x/autopilot"
 
 	"github.com/cloudfoundry/cli/plugin/fakes"
+	. "github.com/cloudfoundry/cli/testhelpers/io"
 )
 
 var _ = Describe("Flag Parsing", func() {
@@ -74,7 +75,6 @@ var _ = Describe("ApplicationRepo", func() {
 				"-p", "/path/to/the/app",
 			}))
 		})
-
 		It("pushes an application with only a manifest", func() {
 			err := repo.PushApplication([]string{"push", "myapp", "-f", "/path/to/a/manifest.yml"})
 			Ω(err).ShouldNot(HaveOccurred())
@@ -93,6 +93,18 @@ var _ = Describe("ApplicationRepo", func() {
 
 			err := repo.PushApplication([]string{"push", "myapp", "-f", "/path/to/a/manifest.yml", "-p", "/path/to/the/app"})
 			Ω(err).Should(MatchError("bad app"))
+		})
+
+		It("pushes an application if one does not exist", func() {
+			err := repo.PushApplication([]string{"push", "myapp"})
+			Ω(err).ShouldNot(HaveOccurred())
+
+			Ω(cliConn.CliCommandCallCount()).Should(Equal(1))
+			args := cliConn.CliCommandArgsForCall(0)
+			Ω(args).Should(Equal([]string{
+				"push",
+				"myapp",
+			}))
 		})
 	})
 
@@ -154,5 +166,23 @@ var _ = Describe("Command Syntax", func() {
 		Ω(cliConn.CliCommandCallCount()).Should(Equal(1))
 		args := cliConn.CliCommandArgsForCall(0)
 		Ω(args).Should(Equal([]string{"push", "-h"}))
+	})
+
+	It("can push an app that already exists", func() {
+		cliConn.CliCommandReturns([]string{"myapp and-other-stuff"}, nil)
+		output := CaptureOutput(func() {
+			autopilotPlugin.Run(cliConn, []string{"push-zdd", "myapp"})
+		})
+
+		Expect(output).To(ContainElement(ContainSubstring("new version of your application")))
+	})
+
+	It("can push an app that doesn't exist", func() {
+		cliConn.CliCommandReturns([]string{"some-other-app and-other-stuff"}, nil)
+		output := CaptureOutput(func() {
+			autopilotPlugin.Run(cliConn, []string{"push-zdd", "my-new-app"})
+		})
+
+		Expect(output).To(ContainElement(ContainSubstring("Using cf push")))
 	})
 })
