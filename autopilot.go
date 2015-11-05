@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/cloudfoundry/cli/plugin"
+	"github.com/xchapter7x/autopilot/application_repo"
 	"github.com/xchapter7x/autopilot/rewind"
 )
 
@@ -37,7 +38,7 @@ type AutopilotPlugin struct{}
 func (plugin AutopilotPlugin) Run(cliConnection plugin.CliConnection, args []string) {
 
 	var err error
-	appRepo := NewApplicationRepo(cliConnection)
+	appRepo := application_repo.NewApplicationRepo(cliConnection)
 
 	if args[0] == "push-zdd" && len(args) == 1 {
 		err = appRepo.PushApplication([]string{"push", "-h"})
@@ -121,45 +122,3 @@ func ParseArgs(args []string) (string, []string) {
 
 //ErrNoManifest - error to return when there is no manifest if required
 var ErrNoManifest = errors.New("a manifest is required to push this application")
-
-//ApplicationRepo - cli connection wrapper
-type ApplicationRepo struct {
-	conn plugin.CliConnection
-}
-
-//NewApplicationRepo - constructor function to create cli connection wrapper
-func NewApplicationRepo(conn plugin.CliConnection) *ApplicationRepo {
-	return &ApplicationRepo{
-		conn: conn,
-	}
-}
-
-//RenameApplication - rename the application given
-func (repo *ApplicationRepo) RenameApplication(oldName, newName string) error {
-	_, err := repo.conn.CliCommand("rename", oldName, newName)
-	return err
-}
-
-//PushApplication - push the application to cf
-func (repo *ApplicationRepo) PushApplication(args []string) error {
-	_, err := repo.conn.CliCommand(args...)
-	return err
-}
-
-//DeleteApplication - delete the application from cf
-func (repo *ApplicationRepo) DeleteApplication(appName string) error {
-	_, err := repo.conn.CliCommand("delete", appName, "-f")
-	return err
-}
-
-//ListApplications - list applications on cf
-func (repo *ApplicationRepo) ListApplications() error {
-	_, err := repo.conn.CliCommand("apps")
-	return err
-}
-
-//ListApplicationsWithOutput - list applications on cf with output
-func (repo *ApplicationRepo) ListApplicationsWithOutput() ([]string, error) {
-	output, err := repo.conn.CliCommand("apps")
-	return output, err
-}
