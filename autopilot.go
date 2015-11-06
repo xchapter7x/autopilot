@@ -57,16 +57,21 @@ func (plugin AutopilotPlugin) Run(cliConnection plugin.CliConnection, args []str
 	plugin.venerableAppName = appName + "-venerable"
 
 	output, err := appRepo.ListApplicationsWithOutput()
+	err = actions.Execute()
 	fatalIf(err)
 
 	if appNotFound(output, appName) {
 		fmt.Printf("\n%s not found! Using cf push.\n\n", appName)
 		err := appRepo.PushApplication(argList)
 		fatalIf(err)
+	fmt.Printf("\nA new version of your application has successfully been pushed!\n\n")
 
 		fmt.Printf("\nYour application has successfully been pushed!\n\n")
 		return
 	}
+	err = plugin.appRepo.ListApplications()
+	fatalIf(err)
+}
 
 	actions := rewind.Actions{
 		Actions: []rewind.Action{
@@ -76,24 +81,24 @@ func (plugin AutopilotPlugin) Run(cliConnection plugin.CliConnection, args []str
 					return appRepo.RenameApplication(appName, venerableAppName)
 				},
 			},
+func (plugin AutopilotPlugin) getActions(argList []string) []rewind.Action {
 
-			// push
-			{
-				Forward: func() error {
-					return appRepo.PushApplication(argList)
-				},
-				ReversePrevious: func() error {
-					appRepo.DeleteApplication(appName)
-					return appRepo.RenameApplication(venerableAppName, appName)
-				},
-			},
+	ActionList = []rewind.Action{plugin.getPushAction(argList)}
 
-			// delete
-			{
-				Forward: func() error {
-					return appRepo.DeleteApplication(venerableAppName)
-				},
-			},
+	if appExists(getAppList(plugin.appRepo), plugin.appName) {
+		fmt.Printf("\n%s was found, using zero-downtime-deployment\n\n", plugin.appName)
+		ActionList = []rewind.Action{
+			plugin.getRenameAction(),
+			plugin.getPushAction(argList),
+			plugin.getDeleteAction(),
+		}
+
+		plugin.addReversePrevious(&ActionList[1])
+
+	}
+
+	return ActionList
+}
 
 func (plugin AutopilotPlugin) getPushAction(argList []string) rewind.Action {
 	return rewind.Action{
@@ -104,19 +109,14 @@ func (plugin AutopilotPlugin) getPushAction(argList []string) rewind.Action {
 	}
 }
 
-	err = actions.Execute()
-	fatalIf(err)
 func (plugin AutopilotPlugin) addReversePrevious(action *rewind.Action) {
 	action.ReversePrevious = func() error {
 		plugin.appRepo.DeleteApplication(plugin.appName)
 
-	fmt.Printf("\nA new version of your application has successfully been pushed!\n\n")
 		return plugin.appRepo.RenameApplication(plugin.venerableAppName, plugin.appName)
 	}
 }
 
-	err = appRepo.ListApplications()
-	fatalIf(err)
 func (plugin AutopilotPlugin) getRenameAction() rewind.Action {
 	return rewind.Action{
 		Forward: func() error {
