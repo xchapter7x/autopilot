@@ -124,3 +124,9 @@ func ParseArgs(args []string) (string, []string) {
 
 //ErrNoManifest - error to return when there is no manifest if required
 var ErrNoManifest = errors.New("a manifest is required to push this application")
+
+func getAppList(appRepo *application_repo.ApplicationRepo) []string {
+	output, err := appRepo.ListApplicationsWithOutput()
+	fatalIf(err)
+	return output
+}
