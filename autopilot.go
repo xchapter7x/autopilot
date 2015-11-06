@@ -34,22 +34,27 @@ func main() {
 }
 
 //AutopilotPlugin - the object implementing the plugin for zdd
-type AutopilotPlugin struct{}
+type AutopilotPlugin struct {
+	appRepo          *application_repo.ApplicationRepo
+	appName          string
+	venerableAppName string
+}
 
 //Run - required command of a plugin (entry point)
 func (plugin AutopilotPlugin) Run(cliConnection plugin.CliConnection, args []string) {
 
 	var err error
-	appRepo := application_repo.NewApplicationRepo(cliConnection)
+	plugin.appRepo = application_repo.NewApplicationRepo(cliConnection)
 
 	if args[0] == "push-zdd" && len(args) == 1 {
-		err = appRepo.PushApplication([]string{"push", "-h"})
+		err = plugin.appRepo.PushApplication([]string{"push", "-h"})
 		fatalIf(err)
 		return
 	}
 
 	appName, argList := ParseArgs(args)
-	venerableAppName := appName + "-venerable"
+	plugin.appName = appName
+	plugin.venerableAppName = appName + "-venerable"
 
 	output, err := appRepo.ListApplicationsWithOutput()
 	fatalIf(err)
