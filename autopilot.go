@@ -89,17 +89,43 @@ func (plugin AutopilotPlugin) Run(cliConnection plugin.CliConnection, args []str
 					return appRepo.DeleteApplication(venerableAppName)
 				},
 			},
+
+func (plugin AutopilotPlugin) getPushAction(argList []string) rewind.Action {
+	return rewind.Action{
+		Forward: func() error {
+			return plugin.appRepo.PushApplication(argList)
 		},
 		RewindFailureMessage: "Oh no. Something's gone wrong. I've tried to roll back but you should check to see if everything is OK.",
 	}
+}
 
 	err = actions.Execute()
 	fatalIf(err)
+func (plugin AutopilotPlugin) addReversePrevious(action *rewind.Action) {
+	action.ReversePrevious = func() error {
+		plugin.appRepo.DeleteApplication(plugin.appName)
 
 	fmt.Printf("\nA new version of your application has successfully been pushed!\n\n")
+		return plugin.appRepo.RenameApplication(plugin.venerableAppName, plugin.appName)
+	}
+}
 
 	err = appRepo.ListApplications()
 	fatalIf(err)
+func (plugin AutopilotPlugin) getRenameAction() rewind.Action {
+	return rewind.Action{
+		Forward: func() error {
+			return plugin.appRepo.RenameApplication(plugin.appName, plugin.venerableAppName)
+		},
+	}
+}
+
+func (plugin AutopilotPlugin) getDeleteAction() rewind.Action {
+	return rewind.Action{
+		Forward: func() error {
+			return plugin.appRepo.DeleteApplication(plugin.venerableAppName)
+		},
+	}
 }
 
 //GetMetadata - required command of plugin (returns meta data about plugin)
