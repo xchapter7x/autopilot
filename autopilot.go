@@ -13,31 +13,15 @@ import (
 
 var ActionList []rewind.Action
 
-func fatalIf(err error) {
-	if err != nil {
-		fmt.Fprintln(os.Stdout, "error:", err)
-		os.Exit(1)
-	}
-}
-
-func appExists(output []string, appName string) bool {
-	for _, app := range output {
-		if strings.Contains(app, appName) {
-			return true
-		}
-	}
-	return false
-}
-
-func main() {
-	plugin.Start(&AutopilotPlugin{})
-}
-
 //AutopilotPlugin - the object implementing the plugin for zdd
 type AutopilotPlugin struct {
 	appRepo          *application_repo.ApplicationRepo
 	appName          string
 	venerableAppName string
+}
+
+func main() {
+	plugin.Start(&AutopilotPlugin{})
 }
 
 //Run - required command of a plugin (entry point)
@@ -132,6 +116,23 @@ func (AutopilotPlugin) GetMetadata() plugin.PluginMetadata {
 			},
 		},
 	}
+}
+
+func fatalIf(err error) {
+	if err != nil {
+		fmt.Fprintln(os.Stdout, "error:", err)
+		os.Exit(1)
+	}
+}
+
+//appExists - check if appName is in output
+func appExists(output []string, appName string) bool {
+	for _, app := range output {
+		if strings.Contains(app, appName) {
+			return true
+		}
+	}
+	return false
 }
 
 //ParseArgs - parse given cli arguments
