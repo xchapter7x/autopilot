@@ -11,6 +11,8 @@ import (
 	"github.com/xchapter7x/autopilot/rewind"
 )
 
+var ActionList []rewind.Action
+
 func fatalIf(err error) {
 	if err != nil {
 		fmt.Fprintln(os.Stdout, "error:", err)

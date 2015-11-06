@@ -56,7 +56,8 @@ var _ = Describe("Command Syntax", func() {
 			autopilotPlugin.Run(cliConn, []string{"push-zdd", "myapp"})
 		})
 
-		Expect(output).To(ContainElement(ContainSubstring("new version of your application")))
+		Expect(len(ActionList)).To(Equal(3))
+		Expect(output).To(ContainElement(ContainSubstring("using zero-downtime-deployment")))
 	})
 
 	It("can push an app that doesn't exist", func() {
@@ -65,6 +66,8 @@ var _ = Describe("Command Syntax", func() {
 			autopilotPlugin.Run(cliConn, []string{"push-zdd", "my-new-app"})
 		})
 
-		Expect(output).To(ContainElement(ContainSubstring("Using cf push")))
+		Expect(len(ActionList)).To(Equal(1))
+		Expect(output).ToNot(ContainElement(ContainSubstring("using zero-downtime-deployment")))
+		Expect(output).To(ContainElement(ContainSubstring("new version of your application")))
 	})
 })
