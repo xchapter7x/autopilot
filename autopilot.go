@@ -56,31 +56,20 @@ func (plugin AutopilotPlugin) Run(cliConnection plugin.CliConnection, args []str
 	plugin.appName = appName
 	plugin.venerableAppName = appName + "-venerable"
 
-	output, err := appRepo.ListApplicationsWithOutput()
+	actions := rewind.Actions{
+		Actions:              plugin.getActions(argList),
+		RewindFailureMessage: "Oh no. Something's gone wrong. I've tried to roll back but you should check to see if everything is OK.",
+	}
+
 	err = actions.Execute()
 	fatalIf(err)
 
-	if appNotFound(output, appName) {
-		fmt.Printf("\n%s not found! Using cf push.\n\n", appName)
-		err := appRepo.PushApplication(argList)
-		fatalIf(err)
 	fmt.Printf("\nA new version of your application has successfully been pushed!\n\n")
 
-		fmt.Printf("\nYour application has successfully been pushed!\n\n")
-		return
-	}
 	err = plugin.appRepo.ListApplications()
 	fatalIf(err)
 }
 
-	actions := rewind.Actions{
-		Actions: []rewind.Action{
-			// rename
-			{
-				Forward: func() error {
-					return appRepo.RenameApplication(appName, venerableAppName)
-				},
-			},
 func (plugin AutopilotPlugin) getActions(argList []string) []rewind.Action {
 
 	ActionList = []rewind.Action{plugin.getPushAction(argList)}
@@ -105,7 +94,6 @@ func (plugin AutopilotPlugin) getPushAction(argList []string) rewind.Action {
 		Forward: func() error {
 			return plugin.appRepo.PushApplication(argList)
 		},
-		RewindFailureMessage: "Oh no. Something's gone wrong. I've tried to roll back but you should check to see if everything is OK.",
 	}
 }
 
