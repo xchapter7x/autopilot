@@ -20,13 +20,13 @@ func fatalIf(err error) {
 	}
 }
 
-func appNotFound(output []string, appName string) bool {
+func appExists(output []string, appName string) bool {
 	for _, app := range output {
 		if strings.Contains(app, appName) {
-			return false
+			return true
 		}
 	}
-	return true
+	return false
 }
 
 func main() {
