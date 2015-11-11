@@ -1,13 +1,15 @@
 package main_test
 
 import (
+	"fmt"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
 	. "github.com/xchapter7x/autopilot"
 
 	"github.com/cloudfoundry/cli/plugin/fakes"
-	. "github.com/cloudfoundry/cli/testhelpers/io"
+	"github.com/cloudfoundry/cli/plugin/models"
 )
 
 var _ = Describe("Flag Parsing", func() {
@@ -50,24 +52,100 @@ var _ = Describe("Command Syntax", func() {
 		Ω(args).Should(Equal([]string{"push", "-h"}))
 	})
 
-	It("can push an app that already exists", func() {
-		cliConn.CliCommandReturns([]string{"myapp and-other-stuff"}, nil)
-		output := CaptureOutput(func() {
-			autopilotPlugin.Run(cliConn, []string{"push-zdd", "myapp"})
+	Context("when a version of an app already exists", func() {
+		var (
+			controlAppName          = "myapp"
+			controlAppNameVenerable = fmt.Sprintf("%s-venerable", controlAppName)
+			controlCallChain        = [][]string{
+				[]string{"rename", controlAppName, controlAppNameVenerable},
+				[]string{"push", controlAppName},
+				[]string{"delete", controlAppNameVenerable, "-f"},
+			}
+			controlCallCount = len(controlCallChain)
+		)
+
+		BeforeEach(func() {
+			cliConn.GetAppsReturns([]plugin_models.GetAppsModel{
+				plugin_models.GetAppsModel{
+					Name: controlAppName,
+				},
+				plugin_models.GetAppsModel{
+					Name: "and-other-stuff",
+				},
+			}, nil)
+			autopilotPlugin.Run(cliConn, []string{"push-zdd", controlAppName})
+		})
+		It("then it should rename the existing app to venerable", func() {
+			callCount := cliConn.CliCommandCallCount()
+
+			for i := 0; i < callCount; i++ {
+				called := cliConn.CliCommandArgsForCall(i)
+				fmt.Println(called)
+				Ω(true).Should(BeTrue())
+			}
 		})
 
-		Expect(len(ActionList)).To(Equal(3))
-		Expect(output).To(ContainElement(ContainSubstring("using zero-downtime-deployment")))
+		It("then it should rename the existing app to venerable", func() {
+			callCount := cliConn.CliCommandCallCount()
+			Ω(callCount).Should(Equal(controlCallCount))
+
+			for i := 0; i < callCount; i++ {
+				called := cliConn.CliCommandArgsForCall(i)
+				Ω(called).Should(Equal(controlCallChain[i]))
+			}
+		})
+
+		It("then it should push the new version of the application", func() {
+			callCount := cliConn.CliCommandCallCount()
+			Ω(callCount).Should(Equal(controlCallCount))
+
+			for i := 0; i < callCount; i++ {
+				called := cliConn.CliCommandArgsForCall(i)
+				Ω(called).Should(Equal(controlCallChain[i]))
+			}
+		})
+
+		It("then it should remove the venerable version of the application", func() {
+			callCount := cliConn.CliCommandCallCount()
+			Ω(callCount).Should(Equal(controlCallCount))
+
+			for i := 0; i < callCount; i++ {
+				called := cliConn.CliCommandArgsForCall(i)
+				Ω(called).Should(Equal(controlCallChain[i]))
+			}
+		})
 	})
 
-	It("can push an app that doesn't exist", func() {
-		cliConn.CliCommandReturns([]string{"some-other-app and-other-stuff"}, nil)
-		output := CaptureOutput(func() {
-			autopilotPlugin.Run(cliConn, []string{"push-zdd", "my-new-app"})
+	Context("when an app does not yet exist", func() {
+		var (
+			controlAppName   = "my-new-app"
+			controlCallChain = [][]string{
+				[]string{"push", controlAppName},
+			}
+			controlCallCount = len(controlCallChain)
+		)
+		BeforeEach(func() {
+			app1 := "myapp"
+			app2 := "other-app"
+			cliConn.GetAppsReturns([]plugin_models.GetAppsModel{
+				plugin_models.GetAppsModel{
+					Name: app1,
+				},
+				plugin_models.GetAppsModel{
+					Name: app2,
+				},
+			}, nil)
+			autopilotPlugin.Run(cliConn, []string{"push-zdd", controlAppName})
 		})
+		It("then it should only call push", func() {
+			callCount := cliConn.CliCommandCallCount()
 
-		Expect(len(ActionList)).To(Equal(1))
-		Expect(output).ToNot(ContainElement(ContainSubstring("using zero-downtime-deployment")))
-		Expect(output).To(ContainElement(ContainSubstring("new version of your application")))
+			Ω(callCount).Should(Equal(controlCallCount))
+
+			for i := 0; i < callCount; i++ {
+				called := cliConn.CliCommandArgsForCall(i)
+				Ω(called).Should(Equal(controlCallChain[i]))
+			}
+		})
 	})
 })

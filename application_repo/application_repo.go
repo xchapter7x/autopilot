@@ -1,6 +1,9 @@
 package application_repo
 
-import "github.com/cloudfoundry/cli/plugin"
+import (
+	"github.com/cloudfoundry/cli/plugin"
+	"github.com/cloudfoundry/cli/plugin/models"
+)
 
 //ApplicationRepo - cli connection wrapper
 type ApplicationRepo struct {
@@ -34,12 +37,17 @@ func (repo *ApplicationRepo) DeleteApplication(appName string) error {
 
 //ListApplications - list applications on cf
 func (repo *ApplicationRepo) ListApplications() error {
-	_, err := repo.conn.CliCommand("apps")
+	_, err := repo.conn.GetApps()
 	return err
 }
 
 //ListApplicationsWithOutput - list applications on cf with output
-func (repo *ApplicationRepo) ListApplicationsWithOutput() ([]string, error) {
-	output, err := repo.conn.CliCommand("apps")
-	return output, err
+func (repo *ApplicationRepo) ListApplicationsWithOutput() (output []string, err error) {
+	var apps []plugin_models.GetAppsModel
+	apps, err = repo.conn.GetApps()
+
+	for _, app := range apps {
+		output = append(output, app.Name)
+	}
+	return
 }

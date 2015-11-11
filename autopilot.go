@@ -11,8 +11,6 @@ import (
 	"github.com/xchapter7x/autopilot/rewind"
 )
 
-var ActionList []rewind.Action
-
 //AutopilotPlugin - the object implementing the plugin for zdd
 type AutopilotPlugin struct {
 	appRepo          *application_repo.ApplicationRepo
@@ -54,23 +52,21 @@ func (plugin AutopilotPlugin) Run(cliConnection plugin.CliConnection, args []str
 	fatalIf(err)
 }
 
-func (plugin AutopilotPlugin) getActions(argList []string) []rewind.Action {
-
-	ActionList = []rewind.Action{plugin.getPushAction(argList)}
+func (plugin AutopilotPlugin) getActions(argList []string) (actionList []rewind.Action) {
+	actionList = []rewind.Action{plugin.getPushAction(argList)}
 
 	if appExists(getAppList(plugin.appRepo), plugin.appName) {
 		fmt.Printf("\n%s was found, using zero-downtime-deployment\n\n", plugin.appName)
-		ActionList = []rewind.Action{
+		actionList = []rewind.Action{
 			plugin.getRenameAction(),
 			plugin.getPushAction(argList),
 			plugin.getDeleteAction(),
 		}
 
-		plugin.addReversePrevious(&ActionList[1])
+		plugin.addReversePrevious(&actionList[1])
 
 	}
-
-	return ActionList
+	return
 }
 
 func (plugin AutopilotPlugin) getPushAction(argList []string) rewind.Action {

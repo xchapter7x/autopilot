@@ -107,20 +107,19 @@ var _ = Describe("ApplicationRepo", func() {
 	})
 
 	Describe("ListApplications", func() {
-		It("lists all the applications", func() {
-			err := repo.ListApplications()
-			Ω(err).ShouldNot(HaveOccurred())
-
-			Ω(cliConn.CliCommandCallCount()).Should(Equal(1))
-			args := cliConn.CliCommandArgsForCall(0)
-			Ω(args).Should(Equal([]string{"apps"}))
+		Context("when we called", func() {
+			It("then it should call the get apps list api", func() {
+				err := repo.ListApplications()
+				Ω(err).ShouldNot(HaveOccurred())
+				Ω(cliConn.GetAppsCallCount()).Should(Equal(1))
+			})
 		})
-
-		It("returns errors from the list", func() {
-			cliConn.CliCommandReturns([]string{}, errors.New("bad apps"))
-
-			err := repo.ListApplications()
-			Ω(err).Should(MatchError("bad apps"))
+		Context("when the get apps call yields an error", func() {
+			It("then it should return the errors ", func() {
+				cliConn.GetAppsReturns(nil, errors.New("bad apps"))
+				err := repo.ListApplications()
+				Ω(err).Should(MatchError("bad apps"))
+			})
 		})
 	})
 })
