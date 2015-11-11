@@ -4,67 +4,44 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/cloudfoundry/cli/plugin"
+	"github.com/xchapter7x/autopilot/application_repo"
 	"github.com/xchapter7x/autopilot/rewind"
 )
 
-func fatalIf(err error) {
-	if err != nil {
-		fmt.Fprintln(os.Stdout, "error:", err)
-		os.Exit(1)
-	}
+var ActionList []rewind.Action
+
+//AutopilotPlugin - the object implementing the plugin for zdd
+type AutopilotPlugin struct {
+	appRepo          *application_repo.ApplicationRepo
+	appName          string
+	venerableAppName string
 }
 
 func main() {
 	plugin.Start(&AutopilotPlugin{})
 }
 
-//AutopilotPlugin - the object implementing the plugin for zdd
-type AutopilotPlugin struct{}
-
 //Run - required command of a plugin (entry point)
 func (plugin AutopilotPlugin) Run(cliConnection plugin.CliConnection, args []string) {
 
 	var err error
-	appRepo := NewApplicationRepo(cliConnection)
+	plugin.appRepo = application_repo.NewApplicationRepo(cliConnection)
 
 	if args[0] == "push-zdd" && len(args) == 1 {
-		err = appRepo.PushApplication([]string{"push", "-h"})
+		err = plugin.appRepo.PushApplication([]string{"push", "-h"})
 		fatalIf(err)
 		return
 	}
 
 	appName, argList := ParseArgs(args)
-	venerableAppName := appName + "-venerable"
+	plugin.appName = appName
+	plugin.venerableAppName = appName + "-venerable"
 
 	actions := rewind.Actions{
-		Actions: []rewind.Action{
-			// rename
-			{
-				Forward: func() error {
-					return appRepo.RenameApplication(appName, venerableAppName)
-				},
-			},
-
-			// push
-			{
-				Forward: func() error {
-					return appRepo.PushApplication(argList)
-				},
-				ReversePrevious: func() error {
-					appRepo.DeleteApplication(appName)
-					return appRepo.RenameApplication(venerableAppName, appName)
-				},
-			},
-
-			// delete
-			{
-				Forward: func() error {
-					return appRepo.DeleteApplication(venerableAppName)
-				},
-			},
-		},
+		Actions:              plugin.getActions(argList),
 		RewindFailureMessage: "Oh no. Something's gone wrong. I've tried to roll back but you should check to see if everything is OK.",
 	}
 
@@ -73,8 +50,59 @@ func (plugin AutopilotPlugin) Run(cliConnection plugin.CliConnection, args []str
 
 	fmt.Printf("\nA new version of your application has successfully been pushed!\n\n")
 
-	err = appRepo.ListApplications()
+	err = plugin.appRepo.ListApplications()
 	fatalIf(err)
+}
+
+func (plugin AutopilotPlugin) getActions(argList []string) []rewind.Action {
+
+	ActionList = []rewind.Action{plugin.getPushAction(argList)}
+
+	if appExists(getAppList(plugin.appRepo), plugin.appName) {
+		fmt.Printf("\n%s was found, using zero-downtime-deployment\n\n", plugin.appName)
+		ActionList = []rewind.Action{
+			plugin.getRenameAction(),
+			plugin.getPushAction(argList),
+			plugin.getDeleteAction(),
+		}
+
+		plugin.addReversePrevious(&ActionList[1])
+
+	}
+
+	return ActionList
+}
+
+func (plugin AutopilotPlugin) getPushAction(argList []string) rewind.Action {
+	return rewind.Action{
+		Forward: func() error {
+			return plugin.appRepo.PushApplication(argList)
+		},
+	}
+}
+
+func (plugin AutopilotPlugin) addReversePrevious(action *rewind.Action) {
+	action.ReversePrevious = func() error {
+		plugin.appRepo.DeleteApplication(plugin.appName)
+
+		return plugin.appRepo.RenameApplication(plugin.venerableAppName, plugin.appName)
+	}
+}
+
+func (plugin AutopilotPlugin) getRenameAction() rewind.Action {
+	return rewind.Action{
+		Forward: func() error {
+			return plugin.appRepo.RenameApplication(plugin.appName, plugin.venerableAppName)
+		},
+	}
+}
+
+func (plugin AutopilotPlugin) getDeleteAction() rewind.Action {
+	return rewind.Action{
+		Forward: func() error {
+			return plugin.appRepo.DeleteApplication(plugin.venerableAppName)
+		},
+	}
 }
 
 //GetMetadata - required command of plugin (returns meta data about plugin)
@@ -90,6 +118,23 @@ func (AutopilotPlugin) GetMetadata() plugin.PluginMetadata {
 	}
 }
 
+func fatalIf(err error) {
+	if err != nil {
+		fmt.Fprintln(os.Stdout, "error:", err)
+		os.Exit(1)
+	}
+}
+
+//appExists - check if appName is in output
+func appExists(output []string, appName string) bool {
+	for _, app := range output {
+		if strings.Contains(app, appName) {
+			return true
+		}
+	}
+	return false
+}
+
 //ParseArgs - parse given cli arguments
 func ParseArgs(args []string) (string, []string) {
 	args[0] = "push"
@@ -100,38 +145,8 @@ func ParseArgs(args []string) (string, []string) {
 //ErrNoManifest - error to return when there is no manifest if required
 var ErrNoManifest = errors.New("a manifest is required to push this application")
 
-//ApplicationRepo - cli connection wrapper
-type ApplicationRepo struct {
-	conn plugin.CliConnection
-}
-
-//NewApplicationRepo - constructor function to create cli connection wrapper
-func NewApplicationRepo(conn plugin.CliConnection) *ApplicationRepo {
-	return &ApplicationRepo{
-		conn: conn,
-	}
-}
-
-//RenameApplication - rename the application given
-func (repo *ApplicationRepo) RenameApplication(oldName, newName string) error {
-	_, err := repo.conn.CliCommand("rename", oldName, newName)
-	return err
-}
-
-//PushApplication - push the application to cf
-func (repo *ApplicationRepo) PushApplication(args []string) error {
-	_, err := repo.conn.CliCommand(args...)
-	return err
-}
-
-//DeleteApplication - delete the application from cf
-func (repo *ApplicationRepo) DeleteApplication(appName string) error {
-	_, err := repo.conn.CliCommand("delete", appName, "-f")
-	return err
-}
-
-//ListApplications - list applications on cf
-func (repo *ApplicationRepo) ListApplications() error {
-	_, err := repo.conn.CliCommand("apps")
-	return err
+func getAppList(appRepo *application_repo.ApplicationRepo) []string {
+	output, err := appRepo.ListApplicationsWithOutput()
+	fatalIf(err)
+	return output
 }
