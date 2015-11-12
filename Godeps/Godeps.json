@@ -1,26 +1,24 @@
 {
 	"ImportPath": "github.com/xchapter7x/autopilot",
 	"GoVersion": "go1.4.2",
+	"Packages": [
+		"./..."
+	],
 	"Deps": [
 		{
 			"ImportPath": "github.com/cloudfoundry/cli/plugin",
-			"Comment": "v6.12.4-1-g9e9c263",
-			"Rev": "9e9c26381a4248e5d52ed6f43fb75afd7d28edaa"
-		},
-		{
-			"ImportPath": "github.com/cloudfoundry/cli/testhelpers/io",
-			"Comment": "v6.12.4-1-g9e9c263",
-			"Rev": "9e9c26381a4248e5d52ed6f43fb75afd7d28edaa"
+			"Comment": "v6.13.0-2-g67901d5",
+			"Rev": "67901d5e743d7ce5fc69d3fc4c5b44271deb2bc3"
 		},
 		{
 			"ImportPath": "github.com/onsi/ginkgo",
-			"Comment": "v1.2.0-11-gd94e2f4",
-			"Rev": "d94e2f4000332f62b356ecb2840c98f4218f5358"
+			"Comment": "v1.2.0-22-g39d2c24",
+			"Rev": "39d2c24f8a92c88f7e7f4d8ec6c80d3cc8f5ac65"
 		},
 		{
 			"ImportPath": "github.com/onsi/gomega",
-			"Comment": "v1.0-52-ga2ab864",
-			"Rev": "a2ab8644e0b6a33df2cbe44673bd0f6ebba9abc3"
+			"Comment": "v1.0-71-g2152b45",
+			"Rev": "2152b45fa28a361beba9aab0885972323a444e28"
 		}
 	]
 }
