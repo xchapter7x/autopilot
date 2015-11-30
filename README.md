@@ -8,6 +8,12 @@
 
 ## installation
 
+**Docker**
+<a href="https://github.com/dominikhahn">Dominik Hahn</a> maintains an Ubuntu-based Dockerfile for autopilot.
+```
+$ docker pull monostream/cf-cli-autopilot
+```
+
 **On *nix**
 ```
 $ go get github.com/xchapter7x/autopilot
@@ -77,4 +83,3 @@ delivery environments.
 
 3. The old application is deleted along with its route mappings. All traffic
    now goes to the new application.
-
