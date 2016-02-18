@@ -20,6 +20,11 @@ $ go get github.com/xchapter7x/autopilot
 $ cf install-plugin %GOPATH%\bin\autopilot.exe
 ```
 
+**On Docker**
+```
+$ docker pull monostream/cf-cli-autopilot
+```
+
 ## usage
 
 ```
